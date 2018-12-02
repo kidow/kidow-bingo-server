@@ -6,6 +6,10 @@ const cookieParser = require('cookie-parser')
 const { jwtMiddleware } = require('./lib/token')
 const port = process.env.PORT || 4000
 
+const authRouter = require('./routes/auth')
+const postsRouter= require('./routes/posts')
+const usersRouter = require('./routes/users')
+
 const app = express()
 
 mongoose.Promise = Promise
@@ -26,6 +30,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(jwtMiddleware)
+
+app.use('/api/auth', authRouter)
+app.use('/api/posts', postsRouter)
+app.use('/api/users', usersRouter)
 
 app.listen(port, () => {
   console.log('App listening on port ' + port);

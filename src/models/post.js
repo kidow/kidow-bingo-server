@@ -1,22 +1,18 @@
 const mongoose = require('mongoose')
 
 const Comment = new mongoose.Schema({
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
+  createdAt: { type: Date, default: Date.now },
   username: String,
   text: String
 })
 
 const Post = new mongoose.Schema({
+  createdAt: { type: Date, default: Date.now },
   username: String,
   comments: {
     type: [Comment],
     default: []
   }
-}, { 
-  timestamps: true
 })
 
 Post.statics.write = function({}) {
