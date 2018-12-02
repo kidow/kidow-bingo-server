@@ -37,7 +37,7 @@ User.statics.localRegister = function({username, email, password}) {
 }
 
 User.methods.validatePassword = function(password) {
-  return this.password === hashed
+  return bcrypt.compareSync(password, this.password)
 }
 
 User.methods.generateToken = function() {
