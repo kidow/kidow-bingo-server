@@ -6,7 +6,7 @@ const auth = express.Router()
 
 auth.post('/register/local', async (req, res) => {
   const schema = Joi.object().keys({
-    username: Joi.string().min(4).max(15).required(),
+    username: Joi.string().min(3).max(10).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required()
   })
@@ -54,7 +54,7 @@ auth.post('/register/local', async (req, res) => {
 
 auth.post('/login/local', async (req, res) => {
   const schema = Joi.object().keys({
-    email: Joi.string().email().required(),
+    username: Joi.string().min(3).max(10).required(),
     password: Joi.string().required()
   })
 
@@ -65,11 +65,11 @@ auth.post('/login/local', async (req, res) => {
     return
   }
 
-  const { email, password } = req.body
+  const { username, password } = req.body
 
   let user = null
   try {
-    user = await User.findByEmail(email)
+    user = await User.findByUsername(username)
   } catch (e) {
     console.error(e)
     res.status(500)
