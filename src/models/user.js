@@ -9,7 +9,8 @@ function hash(password) {
 const User = new mongoose.Schema({
   username: { type: String },
   email: { type: String },
-  password: { type: String }
+  password: { type: String },
+  count: { type: Number, default: 0 }
 }, { 
   timestamps: true 
 })
@@ -48,5 +49,10 @@ User.methods.generateToken = function() {
 
   return generateToken(payload, 'user')
 }
+
+User.methods.increaseCount = function () {
+  this.count++;
+  return this.save();
+};
 
 module.exports = mongoose.model('User', User)
