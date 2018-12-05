@@ -83,7 +83,144 @@ posts.post('/', async (req, res) => {
 })
 
 posts.get('/', async (req, res) => {
+  const { cursor, username } = req.query
 
+  if (cursor && !ObjectId.isValid(cursor)) {
+    res.sendStatus(400)
+    return
+  }
+
+  const { user } = req
+  const self = user ? user.username : null
+
+  let posts = null
+  try {
+    posts = await Post.list({cursor, username, self})
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  const next = posts.length === 8 ? `/api/posts/?${username ? `username=${username}&` : ''}cursor=${posts[7]._id}` : null
+
+  function checkLiked(post) {
+    post = post.toObject()
+
+    const checked = Object.assign(post, { liked: user !== null && post.likes.length > 0} )
+    delete checked.likes
+    return checked
+  }
+
+  posts = posts.map(checkLiked)
+
+  res.json({
+    next,
+    data: posts
+  })
+})
+
+posts.post('/:postId/likes', async (req, res) => {
+  const { user } = req
+  if (!user) {
+    res.sendStatus(403)
+    return
+  }
+
+  const { postId } = req.params
+  const { username } = user.profile
+
+  let post = null
+  try {
+    post = await Post.findById(postId, {
+      likesCount: 1,
+      likes: {
+        '$elemMatch': { '$eq': username }
+      }
+    })
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  if (!post) {
+    res.sendStatus(404)
+    return
+  }
+
+  if (post.likes[0] === username) {
+    res.json({
+      liked: true,
+      likesCount: post.likesCount
+    })
+    return
+  }
+
+  try {
+    post = await Post.like({
+      _id: postId,
+      username: username
+    })
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  res.json({
+    liked: true,
+    likesCount: post.likesCount
+  })
+})
+
+posts.delete('/:postId/likes', async (req, res) => {
+  const { user } = req
+  if (!user) {
+    res.sendStatus(403)
+    return
+  }
+
+  const { postId } = req.params
+  const { username } = user.profile
+
+  let post = null
+  try {
+    post = await Post.findById(postId, {
+      likesCount: 1,
+      likes: {
+        '$elemMatch': { '$eq': username }
+      }
+    })
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  if (!post) {
+    res.sendStatus(404)
+    return
+  }
+
+  if (post.likes.length === 0) {
+    res.json({
+      liked: false,
+      likesCount: post.likesCount
+    })
+    return
+  }
+
+  try {
+    post = await Post.dislike({
+      _id: postId,
+      username: username
+    })
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  res.json({
+    liked: false,
+    likesCount: post.likesCount
+  })
 })
 
 module.exports = posts
