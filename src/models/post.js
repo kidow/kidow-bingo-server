@@ -20,6 +20,7 @@ const Post = new mongoose.Schema({
   likesCount: { type: Number, default: 0 },
   likes: { type: [String], default: [] },
   count: String,
+  titleImage: String,
   cell_1_1: String,
   cell_1_2: String,
   cell_1_3: String,
@@ -95,11 +96,6 @@ Post.statics.dislike = function ({ _id, username }) {
       new: true,
       select: 'likesCount'
     })
-}
-
-Post.methods.writeComment = function ({ username, text }) {
-  this.comments.unshift({ username, text })
-  return this.save()
 }
 
 module.exports = mongoose.model('Post', Post)
