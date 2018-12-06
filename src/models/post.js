@@ -22,9 +22,7 @@ const Post = new mongoose.Schema({
   likes: { type: [String], default: [] },
   count: String,
   titleImage: String,
-  bingo: {
-    type: [Object]
-  }
+  bingo: Object
 })
 
 Post.statics.write = function({username, ...rest}) {

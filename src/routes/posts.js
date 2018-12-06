@@ -152,7 +152,6 @@ posts.get('/:postId', async (req, res) => {
   let post = null
   try {
     post = await Post.findById(postId)
-    console.log('잘된건가?')
   } catch (e) {
     console.error(e)
     res.status(500)
