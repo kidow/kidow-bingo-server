@@ -3,32 +3,32 @@ const Post = require('../models/post')
 const Joi = require('joi')
 const { Types: { ObjectId }} = require('mongoose')
 const express = require('express')
-const multer = require('multer')
-const fs = require('fs')
+// const multer = require('multer')
+// const fs = require('fs')
 
 const posts = express.Router()
 
-fs.readdir('uploads', (error) => {
-  if (error) {
-    console.error('uploads 폴더가 없어 uploads 폴더를 생성합니다.');
-    fs.mkdirSync('uploads');
-  }
-});
+// fs.readdir('uploads', (error) => {
+//   if (error) {
+//     console.error('uploads 폴더가 없어 uploads 폴더를 생성합니다.');
+//     fs.mkdirSync('uploads');
+//   }
+// });
 
-const upload = multer({
-  storage: multer.diskStorage({
-    destination(req, file, cb) {
-      cb(null, 'uploads/');
-    },
-    filename(req, file, cb) {
-      const ext = path.extname(file.originalname);
-      cb(null, path.basename(file.originalname, ext) + new Date().valueOf() + ext);
-    },
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 },
-});
+// const upload = multer({
+//   storage: multer.diskStorage({
+//     destination(req, file, cb) {
+//       cb(null, 'uploads/');
+//     },
+//     filename(req, file, cb) {
+//       const ext = path.extname(file.originalname);
+//       cb(null, path.basename(file.originalname, ext) + new Date().valueOf() + ext);
+//     },
+//   }),
+//   limits: { fileSize: 5 * 1024 * 1024 },
+// });
 
-posts.post('/', upload.single('img'), async (req, res) => {
+posts.post('/', async (req, res) => {
   if (!req.user) {
     res.status(403)
     res.json({ message: 'not logged in' })
@@ -54,44 +54,49 @@ posts.post('/', upload.single('img'), async (req, res) => {
     oneBingo: Joi.string().max(20).required(),
     twoBingo: Joi.string().max(20).required(),
     threeBingo: Joi.string().max(20).required(),
-    cell_1_1: Joi.string().max(25).required(),
-    cell_1_2: Joi.string().max(25).required(),
-    cell_1_3: Joi.string().max(25).required(),
-    cell_1_4: Joi.string().max(25).required(),
-    cell_1_5: Joi.string().max(25).required(),
-    cell_2_1: Joi.string().max(25).required(),
-    cell_2_2: Joi.string().max(25).required(),
-    cell_2_3: Joi.string().max(25).required(),
-    cell_2_4: Joi.string().max(25).required(),
-    cell_2_5: Joi.string().max(25).required(),
-    cell_3_1: Joi.string().max(25).required(),
-    cell_3_2: Joi.string().max(25).required(),
-    cell_3_3: Joi.string().max(25).required(),
-    cell_3_4: Joi.string().max(25).required(),
-    cell_3_5: Joi.string().max(25).required(),
-    cell_4_1: Joi.string().max(25).required(),
-    cell_4_2: Joi.string().max(25).required(),
-    cell_4_3: Joi.string().max(25).required(),
-    cell_4_4: Joi.string().max(25).required(),
-    cell_4_5: Joi.string().max(25).required(),
-    cell_5_1: Joi.string().max(25).required(),
-    cell_5_2: Joi.string().max(25).required(),
-    cell_5_3: Joi.string().max(25).required(),
-    cell_5_4: Joi.string().max(25).required(),
-    cell_5_5: Joi.string().max(25).required(),
+    bingo: Joi.object().keys({
+      cell_1_1: Joi.string().max(25).required(),
+      cell_1_2: Joi.string().max(25).required(),
+      cell_1_3: Joi.string().max(25).required(),
+      cell_1_4: Joi.string().max(25).required(),
+      cell_1_5: Joi.string().max(25).required(),
+      cell_2_1: Joi.string().max(25).required(),
+      cell_2_2: Joi.string().max(25).required(),
+      cell_2_3: Joi.string().max(25).required(),
+      cell_2_4: Joi.string().max(25).required(),
+      cell_2_5: Joi.string().max(25).required(),
+      cell_3_1: Joi.string().max(25).required(),
+      cell_3_2: Joi.string().max(25).required(),
+      cell_3_3: Joi.string().max(25).required(),
+      cell_3_4: Joi.string().max(25).required(),
+      cell_3_5: Joi.string().max(25).required(),
+      cell_4_1: Joi.string().max(25).required(),
+      cell_4_2: Joi.string().max(25).required(),
+      cell_4_3: Joi.string().max(25).required(),
+      cell_4_4: Joi.string().max(25).required(),
+      cell_4_5: Joi.string().max(25).required(),
+      cell_5_1: Joi.string().max(25).required(),
+      cell_5_2: Joi.string().max(25).required(),
+      cell_5_3: Joi.string().max(25).required(),
+      cell_5_4: Joi.string().max(25).required(),
+      cell_5_5: Joi.string().max(25).required()
+    }).required()
   })
 
   const result = Joi.validate(req.body, schema)
 
   if (result.error) {
     res.sendStatus(400)
+    console.log('joi error')
     return
   }
 
   let post
   try {
-    post = await Post.write(req.body)
-    await user.increaseCount()
+    post = await Post.write({
+      username: req.user.username,
+      ...req.body
+    })
   } catch (e) {
     console.error(e)
     res.status(500)
@@ -139,6 +144,21 @@ posts.get('/', async (req, res) => {
     next,
     data: posts
   })
+})
+
+posts.get('/:postId', async (req, res) => {
+  const { postId } = req.params
+
+  let post = null
+  try {
+    post = await Post.findById(postId)
+    console.log('잘된건가?')
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  res.json(post)
 })
 
 posts.post('/:postId/likes', async (req, res) => {

@@ -50,9 +50,4 @@ User.methods.generateToken = function() {
   return generateToken(payload, 'user')
 }
 
-User.methods.increaseCount = function () {
-  this.count++;
-  return this.save();
-};
-
 module.exports = mongoose.model('User', User)
