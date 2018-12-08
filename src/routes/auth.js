@@ -120,4 +120,56 @@ auth.get('/check', (req, res) => {
   res.json(user)
 })
 
+auth.patch('/change/username', async (req, res) => {
+  const schema = Joi.object().keys({
+    username: Joi.string().min(3).max(10).required()
+  })
+
+  const result = Joi.validate(req.body, schema)
+
+  if (result.error) {
+    res.sendStatus(400)
+    return
+  }
+  
+  const { username } = req.body
+
+  let exists = null
+  try {
+    exists = await User.findByUsername(username)
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  if (exists) {
+    res.status(409)
+    res.json(exists)
+    return
+  }
+
+  let user = null
+  try {
+    user = await User.findById(req.user._id)
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  console.log('req.user :', req.user)
+  console.log('user :', user)
+
+  res.json(user)
+})
+
+auth.patch('/change/password', async (req, res) => {
+  const { password } = req.body
+  res.json({message: 'not yet.'})
+})
+
+auth.delete('/leave', async (req, res) => {
+  const { password } = req.body
+  res.json({ message: 'not yet.' })
+})
+
 module.exports = auth
