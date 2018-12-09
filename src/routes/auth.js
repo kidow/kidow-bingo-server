@@ -1,6 +1,7 @@
 const express = require('express')
 const Joi = require('joi')
 const User = require('../models/user')
+const bcrypt = require('bcrypt')
 
 const auth = express.Router()
 
@@ -182,7 +183,26 @@ auth.patch('/change/password', async (req, res) => {
   }
 
   const { password } = req.body
-  res.json({message: 'not yet.'})
+
+  let user = null
+  let hash = bcrypt.hashSync(password, 12)
+  try {
+    user = await User.findOneAndUpdate({ _id: req.user._id }, { password: hash })
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  let token = null
+  try {
+    token = await user.generateToken()
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  res.cookie('access_token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 })
+  res.json(hash)
 })
 
 auth.delete('/leave', async (req, res) => {
