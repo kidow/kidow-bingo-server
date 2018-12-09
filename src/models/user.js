@@ -50,4 +50,8 @@ User.methods.generateToken = function() {
   return generateToken(payload, 'user')
 }
 
+User.methods.hashPassword = function(password) {
+  return bcrypt.hashSync(password, 12)
+}
+
 module.exports = mongoose.model('User', User)

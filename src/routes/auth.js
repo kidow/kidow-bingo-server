@@ -150,19 +150,37 @@ auth.patch('/change/username', async (req, res) => {
 
   let user = null
   try {
-    user = await User.findById(req.user._id)
+    user = await User.findOneAndUpdate({ _id: req.user._id }, { username }, { new: true })
+    req.user.username = username
   } catch (e) {
     console.error(e)
     res.status(500)
   }
 
-  console.log('req.user :', req.user)
-  console.log('user :', user)
+  let token = null
+  try {
+    token = await user.generateToken()
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
 
-  res.json(user)
+  res.cookie('access_token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 })
+  res.json(username)
 })
 
 auth.patch('/change/password', async (req, res) => {
+  const schema = Joi.object().keys({
+    password: Joi.string().min(6).required()
+  })
+
+  const result = Joi.validate(req.body, schema)
+
+  if (result.error) {
+    res.sendStatus(400)
+    return
+  }
+
   const { password } = req.body
   res.json({message: 'not yet.'})
 })

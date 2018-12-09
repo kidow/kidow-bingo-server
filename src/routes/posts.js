@@ -55,31 +55,31 @@ posts.post('/', async (req, res) => {
     twoBingo: Joi.string().max(20).required(),
     threeBingo: Joi.string().max(20).required(),
     bingo: Joi.object().keys({
-      cell_1_1: Joi.string().max(25).required(),
-      cell_1_2: Joi.string().max(25).required(),
-      cell_1_3: Joi.string().max(25).required(),
-      cell_1_4: Joi.string().max(25).required(),
-      cell_1_5: Joi.string().max(25).required(),
-      cell_2_1: Joi.string().max(25).required(),
-      cell_2_2: Joi.string().max(25).required(),
-      cell_2_3: Joi.string().max(25).required(),
-      cell_2_4: Joi.string().max(25).required(),
-      cell_2_5: Joi.string().max(25).required(),
-      cell_3_1: Joi.string().max(25).required(),
-      cell_3_2: Joi.string().max(25).required(),
-      cell_3_3: Joi.string().max(25).required(),
-      cell_3_4: Joi.string().max(25).required(),
-      cell_3_5: Joi.string().max(25).required(),
-      cell_4_1: Joi.string().max(25).required(),
-      cell_4_2: Joi.string().max(25).required(),
-      cell_4_3: Joi.string().max(25).required(),
-      cell_4_4: Joi.string().max(25).required(),
-      cell_4_5: Joi.string().max(25).required(),
-      cell_5_1: Joi.string().max(25).required(),
-      cell_5_2: Joi.string().max(25).required(),
-      cell_5_3: Joi.string().max(25).required(),
-      cell_5_4: Joi.string().max(25).required(),
-      cell_5_5: Joi.string().max(25).required()
+      cell11: Joi.string().max(30).required(),
+      cell12: Joi.string().max(30).required(),
+      cell13: Joi.string().max(30).required(),
+      cell14: Joi.string().max(30).required(),
+      cell15: Joi.string().max(30).required(),
+      cell21: Joi.string().max(30).required(),
+      cell22: Joi.string().max(30).required(),
+      cell23: Joi.string().max(30).required(),
+      cell24: Joi.string().max(30).required(),
+      cell25: Joi.string().max(30).required(),
+      cell31: Joi.string().max(30).required(),
+      cell32: Joi.string().max(30).required(),
+      cell33: Joi.string().max(30).required(),
+      cell34: Joi.string().max(30).required(),
+      cell35: Joi.string().max(30).required(),
+      cell41: Joi.string().max(30).required(),
+      cell42: Joi.string().max(30).required(),
+      cell43: Joi.string().max(30).required(),
+      cell44: Joi.string().max(30).required(),
+      cell45: Joi.string().max(30).required(),
+      cell51: Joi.string().max(30).required(),
+      cell52: Joi.string().max(30).required(),
+      cell53: Joi.string().max(30).required(),
+      cell54: Joi.string().max(30).required(),
+      cell55: Joi.string().max(30).required()
     }).required()
   })
 
@@ -87,7 +87,7 @@ posts.post('/', async (req, res) => {
 
   if (result.error) {
     res.sendStatus(400)
-    console.log('joi error')
+    console.log(result.error)
     return
   }
 
