@@ -111,12 +111,12 @@ posts.post('/', async (req, res) => {
 
 posts.get('/', async (req, res) => {
   const { cursor, username } = req.query
-  console.log(req.query)
 
   if (cursor && !ObjectId.isValid(cursor)) {
     res.sendStatus(400)
     return
   }
+  console.log('cursor :', cursor)
 
   const { user } = req
   const self = user ? user.username : null
@@ -288,6 +288,22 @@ posts.post('/:postId/delete', async (req, res) => {
   }
 
   res.json({ message: '성공적으로 삭제되었습니다' })
+})
+
+posts.get('/search/:title', async (req, res) => {
+  const { title } = req.params
+
+  let posts = null
+  try {
+    posts = await Post.find({ title: new RegExp(title) })
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  res.json({
+    data: posts
+  })
 })
 
 module.exports = posts
