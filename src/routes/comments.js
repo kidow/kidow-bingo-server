@@ -19,6 +19,7 @@ comments.post('/:postId/comments', async (req, res) => {
   const result = Joi.validate(req.body, schema)
   if (result.error) {
     res.sendStatus(400)
+    console.log(result.error)
     return
   }
 

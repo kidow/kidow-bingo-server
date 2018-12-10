@@ -50,7 +50,7 @@ posts.post('/', async (req, res) => {
 
   const schema = Joi.object().keys({
     title: Joi.string().max(20).required(),
-    description: Joi.string().max(20),
+    description: Joi.string().max(20).empty(''),
     oneBingo: Joi.string().max(20).required(),
     twoBingo: Joi.string().max(20).required(),
     threeBingo: Joi.string().max(20).required(),
@@ -168,7 +168,7 @@ posts.post('/:postId/likes', async (req, res) => {
   }
 
   const { postId } = req.params
-  const { username } = user.profile
+  const { username } = user
 
   let post = null
   try {
@@ -220,7 +220,7 @@ posts.delete('/:postId/likes', async (req, res) => {
   }
 
   const { postId } = req.params
-  const { username } = user.profile
+  const { username } = user
 
   let post = null
   try {
@@ -262,6 +262,31 @@ posts.delete('/:postId/likes', async (req, res) => {
     liked: false,
     likesCount: post.likesCount
   })
+})
+
+posts.patch('/:postId/update', async (req, res) => {
+
+})
+
+posts.post('/:postId/delete', async (req, res) => {
+  const { postId } = req.params
+  const { username } = req.user
+
+  let post = null
+  try {
+    post = await Post.findById(postId)
+    if (post.username !== username) {
+      res.sendStatus(401)
+      return
+    } else {
+      await Post.findByIdAndDelete(postId)
+    }
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  res.json({ message: '성공적으로 삭제되었습니다' })
 })
 
 module.exports = posts
