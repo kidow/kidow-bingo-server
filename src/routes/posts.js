@@ -111,6 +111,7 @@ posts.post('/', async (req, res) => {
 
 posts.get('/', async (req, res) => {
   const { cursor, username } = req.query
+  console.log(req.query)
 
   if (cursor && !ObjectId.isValid(cursor)) {
     res.sendStatus(400)
