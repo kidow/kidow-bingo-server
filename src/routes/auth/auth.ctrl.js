@@ -1,10 +1,7 @@
-const express = require('express')
 const Joi = require('joi')
-const User = require('../models/user')
+const User = require('../../models/user')
 
-const auth = express.Router()
-
-auth.post('/register/local', async (req, res) => {
+exports.localRegister = async (req, res) => {
   const schema = Joi.object().keys({
     username: Joi.string().min(3).max(10).required(),
     email: Joi.string().email().required(),
@@ -50,9 +47,9 @@ auth.post('/register/local', async (req, res) => {
 
   res.cookie('access_token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 })
   res.json(user)
-})
+}
 
-auth.post('/login/local', async (req, res) => {
+exports.localLogin = async (req, res) => {
   const schema = Joi.object().keys({
     username: Joi.string().min(3).max(10).required(),
     password: Joi.string().required()
@@ -90,9 +87,9 @@ auth.post('/login/local', async (req, res) => {
 
   res.cookie('access_token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 })
   res.json(user)
-})
+}
 
-auth.get('/exists/:key(email|username)/:value', async (req, res) => {
+exports.exists = async (req, res) => {
   const { key, value } = req.params
 
   let user = null
@@ -104,6 +101,4 @@ auth.get('/exists/:key(email|username)/:value', async (req, res) => {
   }
 
   res.json({ exists: user !== null })
-})
-
-module.exports = auth
+}

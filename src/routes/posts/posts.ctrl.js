@@ -1,34 +1,9 @@
-const User = require('../models/user')
-const Post = require('../models/post')
+const User = require('../../models/user')
+const Post = require('../../models/post')
 const Joi = require('joi')
-const { Types: { ObjectId }} = require('mongoose')
-const express = require('express')
-// const multer = require('multer')
-// const fs = require('fs')
+const { Types: { ObjectId } } = require('mongoose')
 
-const posts = express.Router()
-
-// fs.readdir('uploads', (error) => {
-//   if (error) {
-//     console.error('uploads 폴더가 없어 uploads 폴더를 생성합니다.');
-//     fs.mkdirSync('uploads');
-//   }
-// });
-
-// const upload = multer({
-//   storage: multer.diskStorage({
-//     destination(req, file, cb) {
-//       cb(null, 'uploads/');
-//     },
-//     filename(req, file, cb) {
-//       const ext = path.extname(file.originalname);
-//       cb(null, path.basename(file.originalname, ext) + new Date().valueOf() + ext);
-//     },
-//   }),
-//   limits: { fileSize: 5 * 1024 * 1024 },
-// });
-
-posts.post('/', async (req, res) => {
+exports.write = async (req, res) => {
   if (!req.user) {
     res.status(403)
     res.json({ message: 'not logged in' })
@@ -101,40 +76,39 @@ posts.post('/', async (req, res) => {
     console.error(e)
     res.status(500)
   }
-  
+
   post = post.toJSON()
   delete post.likes
   post.liked = false
 
   res.json(post)
-})
+}
 
-posts.get('/', async (req, res) => {
+exports.list = async (req, res) => {
   const { cursor, username } = req.query
 
   if (cursor && !ObjectId.isValid(cursor)) {
     res.sendStatus(400)
     return
   }
-  console.log('cursor :', cursor)
 
   const { user } = req
   const self = user ? user.username : null
 
   let posts = null
   try {
-    posts = await Post.list({cursor, username, self})
+    posts = await Post.list({ cursor, username, self })
   } catch (e) {
     console.error(e)
     res.status(500)
   }
 
-  const next = posts.length === 8 ? `/api/posts/?${username ? `username=${username}&` : ''}cursor=${posts[7]._id}` : null
+  const next = posts.length === 8 ? `/posts/?${username ? `username=${username}&` : ''}cursor=${posts[7]._id}` : null
 
   function checkLiked(post) {
     post = post.toObject()
 
-    const checked = Object.assign(post, { liked: user !== null && post.likes.length > 0} )
+    const checked = Object.assign(post, { liked: user !== null && post.likes.length > 0 })
     delete checked.likes
     return checked
   }
@@ -145,9 +119,9 @@ posts.get('/', async (req, res) => {
     next,
     data: posts
   })
-})
+}
 
-posts.get('/:postId', async (req, res) => {
+exports.getPost = async (req, res) => {
   const { postId } = req.params
 
   let post = null
@@ -159,117 +133,13 @@ posts.get('/:postId', async (req, res) => {
   }
 
   res.json(post)
-})
+}
 
-posts.post('/:postId/likes', async (req, res) => {
-  const { user } = req
-  if (!user) {
-    res.sendStatus(403)
-    return
-  }
+exports.update = async (req, res) => {
 
-  const { postId } = req.params
-  const { username } = user
+}
 
-  let post = null
-  try {
-    post = await Post.findById(postId, {
-      likesCount: 1,
-      likes: {
-        '$elemMatch': { '$eq': username }
-      }
-    })
-  } catch (e) {
-    console.error(e)
-    res.status(500)
-  }
-
-  if (!post) {
-    res.sendStatus(404)
-    return
-  }
-
-  if (post.likes[0] === username) {
-    res.json({
-      liked: true,
-      likesCount: post.likesCount
-    })
-    return
-  }
-
-  try {
-    post = await Post.like({
-      _id: postId,
-      username: username
-    })
-  } catch (e) {
-    console.error(e)
-    res.status(500)
-  }
-
-  res.json({
-    liked: true,
-    likesCount: post.likesCount
-  })
-})
-
-posts.delete('/:postId/likes', async (req, res) => {
-  const { user } = req
-  if (!user) {
-    res.sendStatus(403)
-    return
-  }
-
-  const { postId } = req.params
-  const { username } = user
-
-  let post = null
-  try {
-    post = await Post.findById(postId, {
-      likesCount: 1,
-      likes: {
-        '$elemMatch': { '$eq': username }
-      }
-    })
-  } catch (e) {
-    console.error(e)
-    res.status(500)
-  }
-
-  if (!post) {
-    res.sendStatus(404)
-    return
-  }
-
-  if (post.likes.length === 0) {
-    res.json({
-      liked: false,
-      likesCount: post.likesCount
-    })
-    return
-  }
-
-  try {
-    post = await Post.dislike({
-      _id: postId,
-      username: username
-    })
-  } catch (e) {
-    console.error(e)
-    res.status(500)
-  }
-
-  res.json({
-    liked: false,
-    likesCount: post.likesCount
-  })
-})
-
-posts.patch('/:postId/update', async (req, res) => {
-
-})
-
-posts.post('/:postId/delete', async (req, res) => {
+exports.delete = async (req, res) => {
   const { postId } = req.params
   const { username } = req.user
 
@@ -288,9 +158,9 @@ posts.post('/:postId/delete', async (req, res) => {
   }
 
   res.json({ message: '성공적으로 삭제되었습니다' })
-})
+}
 
-posts.get('/search/:title', async (req, res) => {
+exports.search = async (req, res) => {
   const { title } = req.params
 
   let posts = null
@@ -304,6 +174,4 @@ posts.get('/search/:title', async (req, res) => {
   res.json({
     data: posts
   })
-})
-
-module.exports = posts
+}

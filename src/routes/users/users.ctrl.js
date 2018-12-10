@@ -1,25 +1,22 @@
-const express = require('express')
 const Joi = require('joi')
-const User = require('../models/user')
+const User = require('../../models/user')
 const bcrypt = require('bcrypt')
 
-const users = express.Router()
-
-users.post('/logout', (req, res) => {
+exports.logout = async (req, res) => {
   res.clearCookie('access_token')
   res.sendStatus(204)
-})
+}
 
-users.get('/check', (req, res) => {
+exports.check = async (req, res) => {
   const { user } = req
   if (!user) {
     res.sendStatus(403)
     return
   }
   res.json(user)
-})
+}
 
-users.patch('/change/username', async (req, res) => {
+exports.changeUsername = async (req, res) => {
   const schema = Joi.object().keys({
     username: Joi.string().min(3).max(10).required()
   })
@@ -66,9 +63,9 @@ users.patch('/change/username', async (req, res) => {
 
   res.cookie('access_token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 })
   res.json(username)
-})
+}
 
-users.patch('/change/password', async (req, res) => {
+exports.changePassword = async (req, res) => {
   const schema = Joi.object().keys({
     password: Joi.string().min(6).required()
   })
@@ -102,9 +99,9 @@ users.patch('/change/password', async (req, res) => {
 
   res.cookie('access_token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 })
   res.json(hash)
-})
+}
 
-users.post('/leave', async (req, res) => {
+exports.leave = async (req, res) => {
   const schema = Joi.object().keys({
     password: Joi.string().min(6).required()
   })
@@ -136,6 +133,4 @@ users.post('/leave', async (req, res) => {
 
   res.clearCookie('access_token')
   res.sendStatus(204)
-})
-
-module.exports = users
+}

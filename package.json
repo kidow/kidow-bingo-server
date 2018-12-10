@@ -2,11 +2,11 @@
   "name": "server",
   "version": "1.0.0",
   "description": "bingo-test-game",
-  "main": "app.js",
+  "main": "index.js",
   "author": "kidow",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/app"
+    "start": "nodemon src"
   },
   "dependencies": {
     "bcrypt": "^3.0.2",

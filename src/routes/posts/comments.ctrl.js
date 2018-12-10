@@ -1,11 +1,8 @@
 const Joi = require('joi')
-const Post = require('../models/post')
-const { Types: { ObjectId }} = require('mongoose')
-const express = require('express')
+const Post = require('../../models/post')
+const { Types: { ObjectId } } = require('mongoose')
 
-const comments = express()
-
-comments.post('/:postId/comments', async (req, res) => {
+exports.comments = async (req, res) => {
   const { user } = req
   if (!user) {
     res.sendStatus(403)
@@ -46,13 +43,11 @@ comments.post('/:postId/comments', async (req, res) => {
   }
 
   try {
-    await post.writeComment({username, text})
+    await post.writeComment({ username, text })
   } catch (e) {
     console.error(e)
     res.status(500)
   }
 
   res.json(post.comments)
-})
-
-module.exports = comments
+}
