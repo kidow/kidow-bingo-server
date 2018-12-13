@@ -124,6 +124,11 @@ exports.list = async (req, res) => {
 exports.getPost = async (req, res) => {
   const { postId } = req.params
 
+  if (!ObjectId.isValid(postId)) {
+    res.sendStatus(400)
+    return
+  }
+
   let post = null
   try {
     post = await Post.findById(postId)
@@ -136,12 +141,17 @@ exports.getPost = async (req, res) => {
 }
 
 exports.update = async (req, res) => {
-
+  const { postId } = req.params
 }
 
 exports.delete = async (req, res) => {
   const { postId } = req.params
   const { username } = req.user
+
+  if (!ObjectId.isValid(postId)) {
+    res.sendStatus(400)
+    return
+  }
 
   let post = null
   try {
@@ -166,6 +176,9 @@ exports.search = async (req, res) => {
   let posts = null
   try {
     posts = await Post.find({ title: new RegExp(title) })
+                      .sort({ title: 1 })
+                      .limit(8)
+                      .exec()
   } catch (e) {
     console.error(e)
     res.status(500)

@@ -1,4 +1,5 @@
 const Post = require('../../models/post')
+const { Types: { ObjectId }} = require('mongoose')
 
 exports.like = async (req, res) => {
   const { user } = req
@@ -9,6 +10,11 @@ exports.like = async (req, res) => {
 
   const { postId } = req.params
   const { username } = user
+
+  if (!ObjectId.isValid(postId)) {
+    res.sendStatus(400)
+    return
+  }
 
   let post = null
   try {
@@ -61,6 +67,11 @@ exports.dislike = async (req, res) => {
 
   const { postId } = req.params
   const { username } = user
+
+  if (!ObjectId.isValid(postId)) {
+    res.sendStatus(400)
+    return
+  }
 
   let post = null
   try {

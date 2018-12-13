@@ -1,5 +1,6 @@
 const Joi = require('joi')
 const User = require('../../models/user')
+const { Types: { ObjectId } } = require('mongoose')
 
 exports.localRegister = async (req, res) => {
   const schema = Joi.object().keys({
@@ -91,6 +92,11 @@ exports.localLogin = async (req, res) => {
 
 exports.exists = async (req, res) => {
   const { key, value } = req.params
+
+  if (!ObjectId.isValid(key) || !ObjectId.isValid(value)) {
+    res.status(400)
+    return
+  }
 
   let user = null
   try {
