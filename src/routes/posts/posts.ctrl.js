@@ -188,3 +188,44 @@ exports.search = async (req, res) => {
     data: posts
   })
 }
+
+exports.getPopular = async (req, res) => {
+  const { cursor, username } = req.query
+
+  if (cursor && !ObjectId.isValid(cursor)) {
+    res.sendStatus(400)
+    return
+  }
+
+  const { user } = req
+  const self = user ? user.username : null
+
+  let posts = null
+  try {
+    posts = await Post.popularList({ cursor, username, self })
+  } catch (e) {
+    console.error(e)
+    res.status(500)
+  }
+
+  console.log('posts :', posts)
+
+  const next = posts.length === 8 ? `/posts/popular/?${username ? `username=${username}&` : ''}cursor=${posts[7]._id}` : null
+
+  console.log('next :', next)
+
+  function checkLiked(post) {
+    post = post.toObject()
+
+    const checked = Object.assign(post, { liked: user !== null && post.likes.length > 0 })
+    delete checked.likes
+    return checked
+  }
+
+  posts = posts.map(checkLiked)
+
+  res.json({
+    next,
+    data: posts
+  })
+}

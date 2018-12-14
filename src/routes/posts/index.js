@@ -7,6 +7,7 @@ const likesCtrl = require('./likes.ctrl')
 
 posts.post('/', postsCtrl.write)
 posts.get('/', postsCtrl.list)
+posts.get('/popular', postsCtrl.getPopular)
 posts.get('/:postId', postsCtrl.getPost)
 posts.post('/:postId/likes', likesCtrl.like)
 posts.delete('/:postId/likes', likesCtrl.dislike)

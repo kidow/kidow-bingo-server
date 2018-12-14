@@ -50,6 +50,26 @@ Post.statics.list = function ({cursor, username, self}) {
   return this.find(query, projection).sort({ _id: -1 }).limit(8).exec()
 }
 
+Post.statics.popularList = function ({ cursor, username, self }) {
+  const query = Object.assign({},
+    cursor ? { _id: { $lt: cursor } } : {},
+    username ? { username } : {}
+  )
+
+  const projection = self ? {
+    count: 1,
+    title: 1,
+    description: 1,
+    comments: 1,
+    likes: {
+      '$elemMatch': { '$eq': self }
+    },
+    likesCount: 1,
+    createdAt: 1
+  } : {}
+  return this.find(query, projection).sort({ likesCount: -1 }).limit(8).exec()
+}
+
 Post.methods.writeComment = function({username, text}) {
   this.comments.unshift({username, text})
   return this.save()
